@@ -1,0 +1,15 @@
+{
+    "name": "tsyfra/media-service",
+    "autoload": {
+        "psr-4": {
+            "Tsyfra\\MediaService\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sciangular",
+            "email": "sciangular.corp@gmail.com"
+        }
+    ],
+    "require": {}
+}
