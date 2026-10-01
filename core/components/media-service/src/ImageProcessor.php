@@ -6,7 +6,7 @@ namespace Tsyfra\MediaService;
 
 class ImageProcessor
 {
-    public static array $MIME_TYPES = [
+    public static array $MIME_TYPE_EXT = [
         'image/avif'  => 'avif',
         'image/webp'  => 'webp',
         'image/png'   => 'png',
@@ -46,10 +46,9 @@ class ImageProcessor
             : $imageString;
     }
 
-    private function makeMediaCacheFilepath(string $path, array $config): string
+    private function makeMediaCacheFilepath(string $path, string $mediaSizeKey, string $mimeType): string
     {
-        $mediaSizeKey = $config['mediaSizeKey'] ?? '';
-        $mediaExtension = $config['mediaExtension'] ?? '';
+        $mediaExtension = self::$MIME_TYPE_EXT[$mimeType] ?? '';
 
         $pathInfo = pathinfo($path);
         $dirname = $pathInfo['dirname'] ?? '';
@@ -66,16 +65,23 @@ class ImageProcessor
             . ($mediaExtension ? '.' . $mediaExtension : '');
     }
 
+    private function makeAttrString(array $attributes): string
+    {
+        $attrString = '';
+        foreach ($attributes as $key => $value) {
+            $attrString .= sprintf(' %s="%s"', $key, htmlspecialchars((string)$value, ENT_QUOTES));
+        }
+        return $attrString;
+    }
+
     private function makeSrcSet(string $filepath, string $mimeType, array $mediaSizes): string
     {
         $srcSet = [];
         foreach ($mediaSizes as $mediaSizeKey) {
             $src = $this->makeMediaCacheFilepath(
                 $filepath,
-                [
-                    'mediaExtension' => self::$MIME_TYPES[$mimeType] ?? '',
-                    'mediaSizeKey' => (string)$mediaSizeKey
-                ]
+                (string)$mediaSizeKey,
+                $mimeType
             );
             $srcSet[] = sprintf(
                 '%s %sw',
@@ -94,18 +100,25 @@ class ImageProcessor
         $sizes = $sourceConfig['sizes'] ?? '';
         $dimensions = $this->config['mediaSizeMap'][$sourceConfig['mediaSizeKey'] ?? ''] ?? null;
 
-        $attrString = '';
-        $attrString .= $media ? sprintf(' media="%s"', htmlspecialchars($media, ENT_QUOTES)) : '';
-        $attrString .= $mimeType ? sprintf(' type="%s"', htmlspecialchars($mimeType, ENT_QUOTES)) : '';
-        $attrString .= $srcset ? sprintf(' srcset="%s"', htmlspecialchars($srcset, ENT_QUOTES)) : '';
-        $attrString .= $sizes ? sprintf(' sizes="%s"', htmlspecialchars($sizes, ENT_QUOTES)) : '';
-        $attrString .= $dimensions ? sprintf(
-            ' width="%s" height="%s"',
-            htmlspecialchars((string)$dimensions['width'], ENT_QUOTES),
-            htmlspecialchars((string)$dimensions['height'], ENT_QUOTES)
-        ) : '';
+        $attributes = [];
+        if ($media) {
+            $attributes['media'] = $media;
+        }
+        if ($mimeType) {
+            $attributes['type'] = $mimeType;
+        }
+        if ($srcset) {
+            $attributes['srcset'] = $srcset;
+        }
+        if ($sizes) {
+            $attributes['sizes'] = $sizes;
+        }
+        if ($dimensions) {
+            $attributes['width'] = (string)$dimensions['width'];
+            $attributes['height'] = (string)$dimensions['height'];
+        }
 
-        return sprintf('<source%s>', $attrString);
+        return sprintf('<source%s>', $this->makeAttrString($attributes));
     }
 
     private function makeImg(string $filepath, array $imgConfig): string
@@ -113,29 +126,32 @@ class ImageProcessor
         $mimeType = $imgConfig['type'] ?? '';
         $src = $this->makeMediaCacheFilepath(
             $filepath,
-            [
-                'mediaExtension' => self::$MIME_TYPES[$mimeType] ?? '',
-                'mediaSizeKey' => (string)$imgConfig['src'] ?? ''
-            ]
+            (string)$imgConfig['src'] ?? '',
+            $mimeType
         );
         $srcset = $this->makeSrcSet($filepath, $mimeType, $imgConfig['srcset']);
         $sizes = $imgConfig['sizes'] ?? '';
         $dimensions = $this->config['mediaSizeMap'][$imgConfig['src'] ?? ''] ?? null;
 
-        $attrString = '';
-        $attrString .= $src ? sprintf(' src="%s"', htmlspecialchars($src, ENT_QUOTES)) : '';
-        $attrString .= $srcset ? sprintf(' srcset="%s"', htmlspecialchars($srcset, ENT_QUOTES)) : '';
-        $attrString .= $sizes ? sprintf(' sizes="%s"', htmlspecialchars($sizes, ENT_QUOTES)) : '';
-        $attrString .= $dimensions ? sprintf(
-            ' width="%s" height="%s"',
-            htmlspecialchars((string)$dimensions['width'], ENT_QUOTES),
-            htmlspecialchars((string)$dimensions['height'], ENT_QUOTES)
-        ) : '';
-
-        foreach ($imgConfig['attributes'] as $key => $value) {
-            $attrString .= sprintf(' %s="%s"', htmlspecialchars($key, ENT_QUOTES), htmlspecialchars((string)$value, ENT_QUOTES));
+        $attributes = [];
+        if ($src) {
+            $attributes['src'] = $src;
+        }
+        if ($srcset) {
+            $attributes['srcset'] = $srcset;
+        }
+        if ($sizes) {
+            $attributes['sizes'] = $sizes;
+        }
+        if ($dimensions) {
+            $attributes['width'] = (string)$dimensions['width'];
+            $attributes['height'] = (string)$dimensions['height'];
         }
 
-        return sprintf('<img%s>', $attrString);
+        foreach ($imgConfig['attributes'] as $key => $value) {
+            $attributes[$key] = (string)$value;
+        }
+
+        return sprintf('<img%s>', $this->makeAttrString($attributes));
     }
 }
