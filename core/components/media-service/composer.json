@@ -1,15 +1,20 @@
 {
-    "name": "tsyfra/media-service",
-    "autoload": {
-        "psr-4": {
-            "Tsyfra\\MediaService\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Sciangular",
-            "email": "sciangular.corp@gmail.com"
-        }
-    ],
-    "require": {}
+  "name": "tsyfra/media-service",
+  "autoload": {
+    "psr-4": {
+      "Tsyfra\\MediaService\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Sciangular",
+      "email": "sciangular.corp@gmail.com"
+    }
+  ],
+  "require": {
+    "ext-imagick": "*"
+  },
+  "require-dev": {
+    "jetbrains/phpstorm-stubs": "^2026.2"
+  }
 }
