@@ -1,12 +1,12 @@
 <?php
 
 return [
-  'mediaBasePath' => '/assets/media',
-  'mediaCachePath' => '/assets/media-cache',
-  'fingerprintCachePath' => '/assets/media-cache/fingerprints',
-  'artVariantRegistry' => [
+  'mediaBaseUrl' => '/assets/media',
+  'mediaCacheUrl' => '/assets/media-cache',
+  'imageManifestPath' => '/assets/media-cache/.manifest',
+  'imagePresets' => [
     'l' => [
-      'srcIndex' => 0,
+      'sourceIndex' => 0,
       'quality' => 80,
       'strip' => true,
       'sizes' => [
@@ -15,11 +15,11 @@ return [
         'md' => ['width' => 768, 'height' => 576],
         'lg' => ['width' => 1200, 'height' => 900],
         'xl' => ['width' => 1600, 'height' => 1200, 'quality' => 95],
-        '2xl' => ['width' => 1920, 'height' => 1440, 'quality' => 95, 'strip' => false],
+        '2xl' => ['width' => 1920, 'height' => 1440, 'quality' => 100, 'strip' => false],
       ],
     ],
     'p' => [
-      'srcIndex' => 1,
+      'sourceIndex' => 1,
       'quality' => 80,
       'strip' => true,
       'sizes' => [
@@ -30,7 +30,7 @@ return [
       ],
     ],
     's' => [
-      'srcIndex' => 2,
+      'sourceIndex' => 2,
       'quality' => 80,
       'strip' => true,
       'sizes' => [
@@ -39,46 +39,65 @@ return [
         'md' => ['width' => 768, 'height' => 768, 'quality' => 95],
       ],
     ],
+    'wm' => [
+      'sourceIndex' => 0,
+      'quality' => 80,
+      'strip' => true,
+      'sizes' => [
+        'sm' => ['width' => 384, 'height' => null],
+        'md' => ['width' => 768, 'height' => null],
+        'lg' => ['width' => 1200, 'height' => null, 'quality' => 95, 'strip' => false, 'watermark' => 'default'],
+      ],
+    ],
   ],
-  'mediaRegistry' => [
+  'watermarkPresets' => [
+    'default' => [
+      'url' => 'logo.png',
+      'width' => 80,
+      'opacity' => 0.5,
+      'position' => 'top-left',
+      'margin' => 20,
+    ]
+  ],
+  'imageRoles' => [
     'hero' => [
-      'source' => [
+      'sources' => [
         [
           'mediaAttr' => '(max-width: 639px)',
-          'artVariant' => 'p',
+          'imagePreset' => 'p',
           'srcsetSizes' => ['sm', 'md', 'lg'],
           'mimeType' => 'image/avif',
           'sizesAttr' => '100vw',
-          'defaultSize' => 'md',
+          'baseSize' => 'md',
         ],
         [
           'mediaAttr' => '(min-width: 640px)',
-          'artVariant' => 'l',
+          'imagePreset' => 'l',
           'srcsetSizes' => ['md', 'lg', 'xl', '2xl'],
           'mimeType' => 'image/avif',
           'sizesAttr' => '100vw',
-          'defaultSize' => 'md',
+          'baseSize' => 'md',
         ],
         [
           'mediaAttr' => '(max-width: 639px)',
-          'artVariant' => 'p',
+          'imagePreset' => 'p',
           'srcsetSizes' => ['sm', 'md', 'lg'],
           'mimeType' => 'image/webp',
           'sizesAttr' => '100vw',
-          'defaultSize' => 'md',
+          'baseSize' => 'md',
         ],
         [
           'mediaAttr' => '(min-width: 640px)',
-          'artVariant' => 'l',
+          'imagePreset' => 'l',
           'srcsetSizes' => ['md', 'lg', 'xl', '2xl'],
           'mimeType' => 'image/webp',
           'sizesAttr' => '100vw',
-          'defaultSize' => 'md',
+          'baseSize' => 'md',
         ],
       ],
       'img' => [
-        'artVariant' => 'l',
-        'srcSize' => 'lg',
+        'imagePreset' => 'l',
+        'baseSize' => 'lg',
         'srcsetSizes' => ['md', 'lg', 'xl', '2xl'],
         'mimeType' => 'image/webp',
         'sizesAttr' => '100vw',
@@ -86,26 +105,26 @@ return [
     ],
     'post' => [
       'img' => [
-        'artVariant' => 'l',
-        'srcsetSizes' => ['sm', 'md', 'lg', 'xl'],
-        'srcSize' => 'lg',
+        'imagePreset' => 'wm',
+        'baseSize' => 'lg',
+        'srcsetSizes' => ['sm', 'md', 'lg'],
         'mimeType' => 'image/webp',
         'sizesAttr' => '(max-width: 640px) 100vw, 75vw',
       ],
     ],
     'card' => [
       'img' => [
-        'artVariant' => 'l',
+        'imagePreset' => 'l',
+        'baseSize' => 'md',
         'srcsetSizes' => ['xs', 'sm', 'md'],
-        'srcSize' => 'md',
         'mimeType' => 'image/webp',
       ],
     ],
     'thumb' => [
       'img' => [
-        'artVariant' => 's',
+        'imagePreset' => 's',
+        'baseSize' => 'sm',
         'srcsetSizes' => ['xs', 'sm', 'md'],
-        'srcSize' => 'sm',
         'mimeType' => 'image/webp',
       ],
     ],

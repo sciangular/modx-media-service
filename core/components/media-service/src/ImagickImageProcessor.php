@@ -10,12 +10,16 @@ final class ImagickImageProcessor implements ImageProcessorInterface
         string $source,
         string $destination,
         array $options
-    ): bool {
+    ): array {
         if (!file_exists($source) || !is_readable($source) || !$destination) {
-            return false;
+            return [];
         }
 
         $temporaryPath = $destination . '.tmp';
+        $dirname = dirname($temporaryPath);
+        if (!is_dir($dirname)) {
+            mkdir($dirname, 0775, true);
+        }
 
         $image = new \Imagick($source);
 
@@ -35,7 +39,12 @@ final class ImagickImageProcessor implements ImageProcessorInterface
 
         $image->writeImage($temporaryPath);
         rename($temporaryPath, $destination);
+        $result = [
+            'intrinsicWidth' => $image->getImageWidth(),
+            'intrinsicHeight' => $image->getImageHeight(),
+        ];
         $image->clear();
-        return true;
+
+        return $result;
     }
 }

@@ -7,5 +7,5 @@ interface ImageProcessorInterface
     string $source,
     string $destination,
     array $options
-  ): bool;
+  ): array;
 }

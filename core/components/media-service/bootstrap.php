@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Tsyfra\MediaService\ImageProcessor;
+use Tsyfra\MediaService\ResponsiveImageManager;
 use Tsyfra\MediaService\ImagickImageProcessor;
 
 /**
@@ -25,10 +25,10 @@ try {
   }
 
   $definitions = [
-    'imageProcessor' => function () {
+    'ResponsiveImageManager' => function () {
       $config = require __DIR__ . '/config/config.php';
-      return new ImageProcessor(
-        MODX_BASE_PATH,
+      return new ResponsiveImageManager(
+        rtrim(MODX_BASE_PATH, '/'),
         new ImagickImageProcessor(),
         $config
       );
