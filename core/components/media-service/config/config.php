@@ -7,7 +7,7 @@ return [
   'imagePresets' => [
     'l' => [
       'sourceIndex' => 0,
-      'quality' => 80,
+      'quality' => 75,
       'strip' => true,
       'sizes' => [
         'xs' => ['width' => 192, 'height' => 144],
@@ -15,12 +15,12 @@ return [
         'md' => ['width' => 768, 'height' => 576],
         'lg' => ['width' => 1200, 'height' => 900],
         'xl' => ['width' => 1600, 'height' => 1200, 'quality' => 95],
-        '2xl' => ['width' => 1920, 'height' => 1440, 'quality' => 100, 'strip' => false],
+        '2xl' => ['width' => 1920, 'height' => 1440, 'quality' => 95, 'strip' => false],
       ],
     ],
     'p' => [
       'sourceIndex' => 1,
-      'quality' => 80,
+      'quality' => 75,
       'strip' => true,
       'sizes' => [
         'xs' => ['width' => 192, 'height' => 256],
@@ -31,7 +31,7 @@ return [
     ],
     's' => [
       'sourceIndex' => 2,
-      'quality' => 80,
+      'quality' => 75,
       'strip' => true,
       'sizes' => [
         'xs' => ['width' => 192, 'height' => 192],
@@ -41,7 +41,7 @@ return [
     ],
     'wm' => [
       'sourceIndex' => 0,
-      'quality' => 80,
+      'quality' => 75,
       'strip' => true,
       'sizes' => [
         'sm' => ['width' => 384, 'height' => null],
@@ -54,8 +54,8 @@ return [
     'default' => [
       'url' => 'logo.png',
       'width' => 80,
-      'opacity' => 0.5,
-      'position' => 'top-left',
+      'opacity' => 0.85,
+      'placement' => 'top-left',
       'margin' => 20,
     ]
   ],

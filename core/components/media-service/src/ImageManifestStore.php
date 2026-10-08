@@ -49,7 +49,7 @@ final class ImageManifestStore
                 $config['watermark']['url'] ?? '',
                 $config['watermark']['width'] ?? '',
                 $config['watermark']['opacity'] ?? '',
-                $config['watermark']['position'] ?? '',
+                $config['watermark']['placement'] ?? '',
                 $config['watermark']['margin'] ?? '',
             ])
         );

@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Tsyfra\MediaService;
 
-class ResponsiveImageManager
+final class ResponsiveImageManager
 {
     private string $mediaBaseUrl;
-    private string $mediaCacheUrl;
     private string $imageManifestPath;
 
     public function __construct(
@@ -16,39 +15,40 @@ class ResponsiveImageManager
         private readonly array $config
     ) {
         $this->mediaBaseUrl = $config['mediaBaseUrl'];
-        $this->mediaCacheUrl = $config['mediaCacheUrl'];
         $this->imageManifestPath = $config['imageManifestPath'];
     }
 
-    public function getResponsiveImage(array $imageSources, string $imageRole, array $attributes = []): array
+    public function getResponsiveImage(array $imageSources, string $imageRole, array $attributes = []): string
     {
         $imageConfig = $this->config['imageRoles'][$imageRole] ?? [];
         if (!$imageConfig || !$imageSources) {
-            return [];
+            return '';
         }
         $transformConfigBuilder = new ImageTransformConfigBuilder($this->WEB_ROOT_PATH, $this->config);
         $transformConfigMap = $transformConfigBuilder->buildConfigMap($imageSources, $imageRole);
 
+        $manifestMap = [];
         $manifestStore = new ImageManifestStore($this->WEB_ROOT_PATH . $this->imageManifestPath);
-        foreach ($transformConfigMap as &$config) {
+
+        foreach ($transformConfigMap as $key => $config) {
             $manifest = $manifestStore->resolveManifest($config);
-            if ($manifest) {
-                $config['manifest'] = $manifest;
-                continue;
+
+            if (!$manifest) {
+                $intrinsicSize = $this->processImage($config);
+                $manifestPayload = [
+                    'intrinsicWidth' => $intrinsicSize['intrinsicWidth'] ?? 0,
+                    'intrinsicHeight' => $intrinsicSize['intrinsicHeight'] ?? 0,
+                ];
+                $manifest = $manifestStore->updateManifestRecord($manifestPayload, $config) ?? [];
             }
 
-            // process the image and generate the manifest payload
-            $intrinsicSize = $this->processImage($config);
-
-            $manifestPayload = [
-                'intrinsicWidth' => $intrinsicSize['intrinsicWidth'] ?? 0,
-                'intrinsicHeight' => $intrinsicSize['intrinsicHeight'] ?? 0,
-            ];
-            $config['manifest'] = $manifestStore->updateManifestRecord($manifestPayload, $config) ?? [];
+            $manifest['destinationUrl'] = $config['destinationUrl'] ?? '';
+            $manifestMap[$key] = $manifest;
         }
-        unset($config);
 
-        return $transformConfigMap;
+        $renderer = new ResponsiveImageRenderer($this->config, $manifestMap, $attributes);
+
+        return $renderer->render($imageRole);
     }
 
     private function processImage(array $config): array
@@ -62,6 +62,10 @@ class ResponsiveImageManager
             'strip' => $config['strip'] ?? true,
             'format' => pathinfo($destinationPath, PATHINFO_EXTENSION),
         ];
+        if (isset($config['watermark'])) {
+            $options['watermark'] = $config['watermark'];
+            $options['watermark']['path'] = $this->WEB_ROOT_PATH . $this->mediaBaseUrl . '/' . trim($options['watermark']['url']);
+        }
 
         return $this->processor->generate($originPath, $destinationPath, $options);
     }
